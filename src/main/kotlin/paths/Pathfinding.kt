@@ -1,5 +1,56 @@
 package paths
 
+import java.util.*
+
+fun FindPath(
+from: Point,
+isEnd: (Point) -> Boolean,
+getWeight: (Point) -> Long,
+isBlocked: (Point, Point) -> Boolean,
+allowDiag: Boolean = false,
+is3d: Boolean = false
+) : WeightedPath?
+{
+    val cheapestEnd: WeightedPath? = null
+    val cheapest = mutableMapOf<Point, WeightedPath>()
+    val queue = LinkedList<Triple<Set<Point>, Long, Point>>()
+    queue.addLast(Triple(emptySet(), -getWeight(from), from));
+    while(queue.any())
+    {
+        val (prevPath, prevWeight, newNode) = queue.pop();
+        val weight = prevWeight + getWeight(newNode);
+
+        if ((cheapest[newNode]?.weight ?: Long.MAX_VALUE) < weight)
+        {
+            continue;
+        }
+
+        if (cheapestEnd != null && weight >= cheapestEnd.weight)
+        {
+            continue;
+        }
+
+        val newPath = prevPath.toHashSet()
+        newPath.add(newNode)
+        val wp = WeightedPath(newPath, weight);
+
+        cheapest[newNode] = wp;
+
+        if (isEnd(newNode))
+        {
+            return wp;
+        }
+
+        getNeighbours(newNode, allowDiag, is3d)
+            .filter {!isBlocked(newNode, it)}
+            .filter {!prevPath.contains(it)}
+            .map{Triple(newPath,weight,it)}
+            .forEach{queue.addLast(it)}
+    }
+
+    return cheapestEnd;
+}
+
 fun getNeighbours(point: Point, allowDiagonal: Boolean = false, is3d: Boolean = false): Set<Point>
 {
     val neighbours = mutableSetOf<Point>();
@@ -49,3 +100,4 @@ fun getNeighbours(point: Point, allowDiagonal: Boolean = false, is3d: Boolean = 
 }
 
 data class Point(val x: Long, val y: Long, val z: Long);
+data class WeightedPath(val path: Set<Point>, val weight: Long);
