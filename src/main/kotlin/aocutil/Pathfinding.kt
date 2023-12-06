@@ -1,4 +1,4 @@
-package paths
+package aocutil
 
 import java.util.*
 

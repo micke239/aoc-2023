@@ -1,5 +1,5 @@
-import paths.Point
-import paths.getNeighbours
+import aocutil.Point
+import aocutil.getNeighbours
 import java.io.File
 
 class Day3{

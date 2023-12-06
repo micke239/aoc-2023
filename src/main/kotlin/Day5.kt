@@ -1,3 +1,5 @@
+import aocutil.Range
+import aocutil.overlaps
 import java.io.File
 import java.util.LinkedList
 import kotlin.math.max
@@ -57,7 +59,7 @@ class Day5 {
             val fromStart = split[1].toLong()
             val range = split[2].toLong()
 
-            current.add(Mapping(fromStart, fromStart + range, toStart - fromStart))
+            current.add(Mapping(Range(fromStart, fromStart + range), toStart - fromStart))
         }
 
         val location = seeds.minOf{seed ->
@@ -83,7 +85,7 @@ class Day5 {
         val temperatureToHumidity = mutableListOf<Mapping>()
         val humidityToLocation = mutableListOf<Mapping>()
 
-        val seeds = mutableSetOf<SeedRange>()
+        val seeds = mutableSetOf<Range>()
         var current = seedToSoil;
         lines.forEach {
             if (it.isBlank()) {
@@ -91,7 +93,7 @@ class Day5 {
             }
             if (it.startsWith("seeds:")) {
                 val s = it.split(" ");
-                s.drop(1).chunked(2).forEach {y -> seeds.add(SeedRange(y[0].toLong(), y[0].toLong()+y[1].toLong())) }
+                s.drop(1).chunked(2).forEach {y -> seeds.add(Range(y[0].toLong(), y[0].toLong()+y[1].toLong())) }
                 return@forEach
             }
             if (!it[0].isDigit()) {
@@ -113,7 +115,7 @@ class Day5 {
             val fromStart = split[1].toLong()
             val range = split[2].toLong()
 
-            current.add(Mapping(fromStart, fromStart + range, toStart - fromStart))
+            current.add(Mapping(Range(fromStart, fromStart + range), toStart - fromStart))
         }
 
         val soil = mapIt(seedToSoil, seeds)
@@ -128,35 +130,33 @@ class Day5 {
     }
 
     private fun mapIt(mappings: List<Mapping>, from: Long): Long {
-        val mapping = mappings.firstOrNull { from >= it.from && from < it.to }
+        val mapping = mappings.firstOrNull { from >= it.range.from && from < it.range.to }
         return if (mapping != null) from + (mapping.diff) else from
     }
 
-    private fun mapIt(mappings: List<Mapping>, ranges: Set<SeedRange>): Set<SeedRange> {
-        val newRanges = mutableSetOf<SeedRange>()
+    private fun mapIt(mappings: List<Mapping>, ranges: Set<Range>): Set<Range> {
+        val newRanges = mutableSetOf<Range>()
 
-        val rangeQueue = LinkedList<SeedRange>()
+        val rangeQueue = LinkedList<Range>()
         rangeQueue.addAll(ranges)
 
         while(rangeQueue.any()) {
             val range = rangeQueue.pop()
-            val mapping = mappings.firstOrNull { mapping ->
-                (range.from <= mapping.from && range.to > mapping.from) || (range.from < mapping.to && range.to > mapping.from)
-            }
+            val mapping = mappings.firstOrNull { overlaps(range, it.range) }
 
             if (mapping == null) {
                 newRanges.add(range)
                 continue
             }
 
-            if (range.from < mapping.from) {
-                rangeQueue.add(SeedRange(range.from, mapping.from))
+            if (range.from < mapping.range.from) {
+                rangeQueue.add(Range(range.from, mapping.range.from))
             }
-            if (range.to >= mapping.from) {
-                newRanges.add(SeedRange(max(range.from,mapping.from) + mapping.diff, min(range.to, mapping.to) + mapping.diff))
-            }
-            if (range.to > mapping.to) {
-                rangeQueue.add(SeedRange(mapping.to, range.to))
+
+            newRanges.add(Range(max(range.from,mapping.range.from) + mapping.diff, min(range.to, mapping.range.to) + mapping.diff))
+
+            if (range.to > mapping.range.to) {
+                rangeQueue.add(Range(mapping.range.to, range.to))
             }
         }
 
@@ -164,5 +164,4 @@ class Day5 {
     }
 }
 
-data class Mapping(val from: Long, val to: Long, val diff: Long)
-data class SeedRange(val from: Long, val to: Long)
+data class Mapping(val range: Range, val diff: Long)
