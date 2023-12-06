@@ -5,5 +5,7 @@ fun main(args: Array<String>) {
         "3" -> Day3().run()
         "4" -> Day4().run()
         "5" -> Day5().run()
+        "6" -> Day6().run()
+        "7" -> Day7().run()
     }
 }
