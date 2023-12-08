@@ -8,5 +8,6 @@ fun main(args: Array<String>) {
         "6" -> Day6().run()
         "7" -> Day7().run()
         "8" -> Day8().run()
+        "9" -> Day9().run()
     }
 }

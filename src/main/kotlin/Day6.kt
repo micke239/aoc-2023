@@ -25,7 +25,7 @@ class Day6 {
             val duration = it.key
             val record = it.value
 
-            (1..<duration).map {i ->
+            (1..<duration).map { i ->
                 (i * (duration - i))
             }.count { i -> i > record }
         }.fold(1L) { acc, i -> acc * i }
@@ -42,7 +42,7 @@ class Day6 {
             val duration = it.key
             val record = it.value
 
-            (1..<duration).map {i ->
+            (1..<duration).map { i ->
                 (i * (duration - i))
             }.count { i -> i > record }
         }.fold(1L) { acc, i -> acc * i }
