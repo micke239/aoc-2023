@@ -19,11 +19,11 @@ class Day10 {
     }
 
     private fun part1(lines: List<String>) {
-        var start = Point(0,0,0);
+        var start = Point(0,0,0)
         val map = lines.flatMapIndexed{y, l ->
             l.mapIndexed {x,c ->
                 val point = Point(x.toLong(), y.toLong(),0)
-                if (c == 'S') start = point;
+                if (c == 'S') start = point
                 when (c) {
                     '|' -> point to listOf(Point(x.toLong(), y.toLong() - 1, 0), Point(x.toLong(), y.toLong() + 1, 0))
                     '-' -> point to listOf(Point(x.toLong() - 1, y.toLong(), 0), Point(x.toLong() + 1, y.toLong(), 0))
@@ -37,22 +37,20 @@ class Day10 {
             }.filterNotNull()
         }.toMap()
 
-        var prev = start;
+        var prev = start
         var node = map[start]!![0]
         var i = 1
         while (node != start) {
-            if (map[node] == null)
-                println("Whaat")
-            val nnode = map[node]!!.first { it != prev }
-            prev = node;
-            node = nnode;
+            val newNode = map[node]!!.first { it != prev }
+            prev = node
+            node = newNode
             i++
         }
         println(i.toDouble()/2)
     }
 
     private fun part2(lines: List<String>) {
-        var start = Point(0,0,0);
+        var start = Point(0,0,0)
 
         val expanded = lines.flatMapIndexed {y, line ->
             val nY = y*2
@@ -71,7 +69,7 @@ class Day10 {
             val point = it.key
             val (x,y) = point
             val c = it.value
-            if (c == 'S') start = point;
+            if (c == 'S') start = point
             when (c) {
                 '|' -> point to listOf(Point(x, y - 1, 0), Point(x, y + 1, 0))
                 '-' -> point to listOf(Point(x - 1, y, 0), Point(x + 1, y, 0))
@@ -83,14 +81,14 @@ class Day10 {
             }
         }.filterNotNull().toMap()
 
-        var prev = start;
+        var prev = start
         var node = map[start]!![0]
         val loop = mutableSetOf(start)
         while (node != start) {
             loop.add(node)
             val newNode = map[node]!!.first { it != prev }
-            prev = node;
-            node = newNode;
+            prev = node
+            node = newNode
         }
 
         printMapWithLoop(expanded, loop)
@@ -103,12 +101,12 @@ class Day10 {
         for (y in ((minY)+1..<maxY)) {
             if (y % 2 == 1L) continue
 
-            var minX = loop.filter { it.y == y }.minOf { it.x }
-            var maxX = loop.filter { it.y == y }.maxOf { it.x }
+            val minX = loop.filter { it.y == y }.minOf { it.x }
+            val maxX = loop.filter { it.y == y }.maxOf { it.x }
             for(x in ((minX+1)..<maxX)) {
                 if (x % 2 == 1L) continue
 
-                val point = Point(x,y,0);
+                val point = Point(x,y,0)
                 if (loop.contains(point)) {
                     continue
                 }
