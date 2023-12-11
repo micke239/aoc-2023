@@ -93,7 +93,7 @@ class Day10 {
             node = newNode;
         }
 
-//        printMapWithLoop(expanded, loop)
+        printMapWithLoop(expanded, loop)
 
         val minY = loop.minOf { it.y }
         val maxY = loop.maxOf { it.y }
@@ -125,7 +125,7 @@ class Day10 {
             }
         }
 
-//        printMapWithLoopAndEnclosed(expanded, loop, enclosed)
+        printMapWithLoopAndEnclosed(expanded, loop, enclosed)
 
         println(enclosed.count())
     }
@@ -159,7 +159,7 @@ class Day10 {
             if (y % 2 == 1L) return@forEach
 
             (0..expandedX).forEach(fun(x: Long){
-                if (y % 2 == 1L) return
+                if (x % 2 == 1L) return
 
                 val point = Point(x,y,0)
                 if (loop.contains(point)) {

@@ -17,16 +17,12 @@ fun findBestPath(
     var cheapestEnd: WeightedPath? = null
     val cheapest = mutableMapOf<Point, WeightedPath>()
     val queue = PriorityQueue<Triple<Set<Point>, Long, Point>> {p1,p2 -> priority.compare(p1.third, p2.third) }
+//    val queue = LinkedList<Triple<Set<Point>, Long, Point>>() //{p1,p2 -> priority.compare(p1.third, p2.third) }
     queue.add(Triple(emptySet(), -getWeight(from), from))
     while(queue.any())
     {
         val (prevPath, prevWeight, newNode) = queue.poll()
-
         val weight = prevWeight + getWeight(newNode)
-
-        if (cheapest[newNode] != null) {
-            continue;
-        }
 
         if ((cheapest[newNode]?.weight ?: Long.MAX_VALUE) < weight)
         {
@@ -42,12 +38,14 @@ fun findBestPath(
         newPath.add(newNode)
         val wp = WeightedPath(newPath, weight)
 
+        //println(newPath)
         cheapest[newNode] = wp
 
         if (isEnd(newNode))
         {
             if (multiEnd) {
                 cheapestEnd = wp
+                println(cheapestEnd.weight)
                 continue
             }
             return wp
