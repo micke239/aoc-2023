@@ -48,9 +48,9 @@ class Day7 {
         }
 
         val rank = cardBids.map {
-            val handRank = handRank(it.cards, cardRank)
-            Triple(rankCards(it.cards, 'J'), handRank, it)
-        }.sortedWith(compareBy<Triple<Int, Int, CardBid>> { it.first }.thenBy { it.second })
+                val handRank = handRank(it.cards, cardRank)
+                Triple(rankCards(it.cards, 'J'), handRank, it)
+            }.sortedWith(compareBy<Triple<Int, Int, CardBid>> { it.first }.thenBy { it.second })
             .mapIndexed { i, it -> it.third.bid * (i+1) }
             .sum()
 
