@@ -22,14 +22,14 @@ private fun part1(lines: List<String>) {
         }
     }.toMap()
 
-    val path = findBestPath(map, null) { thing, currentDir ->
+    val weight = findBestPath(map, null) { thing, currentDir ->
         if (currentDir.second == 3) {
             thing.dir.first != currentDir.first
         }
         else true
     }
 
-    println(path!!.weight)
+    println(weight!!)
 }
 
 private fun part2(lines: List<String>) {
@@ -39,77 +39,69 @@ private fun part2(lines: List<String>) {
         }
     }.toMap()
 
-    val path = findBestPath(map, 4) { thing, currentDir ->
+    val weight = findBestPath(map, 4) { thing, currentDir ->
             if (currentDir.second < 4) thing.dir.first == currentDir.first
             else if (currentDir.second == 10) thing.dir.first != currentDir.first
             else true
         }
 
-    println(path!!.weight)
+    println(weight!!)
 }
 
 private fun findBestPath(
     map: Map<IntPoint, Int>,
     minSteps: Int?,
     dirFilter: (Thing, Pair<Char,Int>) -> Boolean
-) : WeightedPath?
+) : Int?
 {
     val yRange = (0..(map.maxOf { it.key.y }))
     val xRange = (0..(map.maxOf { it.key.x }))
 
-    var cheapestEnd: WeightedPath? = null
     val cheapest = mutableMapOf<Pair<IntPoint,Pair<Char,Int>>, Int>()
-    val queue = PriorityQueue (
-        compareByDescending<Thing> { ((xRange.last - it.point.x) + (yRange.last - it.point.y)) / 2 }
-            .thenBy { map[it.point] }
-    )
-    queue.add(Thing(emptySet(), 0, IntPoint(1,0), 'e' to 1))
-    queue.add(Thing(emptySet(), 0, IntPoint(0,1), 's' to 1))
+    val queue = PriorityQueue ( compareBy<Thing> { it.weight } )
+    queue.add(Thing(map[IntPoint(0,1)]!!, IntPoint(0,1), 's' to 1))
+    queue.add(Thing(map[IntPoint(1,0)]!!, IntPoint(1,0), 'e' to 1))
     while(queue.any())
     {
-
-        val (prevPath, prevWeight, newNode, dir) = queue.poll()
-        val weight = prevWeight + map[newNode]!!
+        val (weight, newNode, dir) = queue.poll()
 
         val cheapestNode = cheapest[newNode to dir]
         if (cheapestNode != null && cheapestNode <= weight) {
             continue
         }
+
         cheapest[newNode to dir] = weight
 
-        if (cheapestEnd != null && weight >= cheapestEnd.weight)
-        {
-            continue
-        }
-
-        val newPath = prevPath.toMutableSet()
-        newPath.add(newNode)
-
-        val wp = WeightedPath(newPath, weight)
         if (newNode.x == xRange.last && newNode.y == yRange.last)
         {
             if (minSteps == null || dir.second >= minSteps) {
-                cheapestEnd = wp
+                return weight
             }
-            continue
         }
 
         getNeighbours(newNode)
             .filter {it.x in xRange && it.y in yRange}
-            .filter {!prevPath.contains(it)}
             .map{
                 val d = if (it.y > newNode.y) 's'
                     else if (it.y < newNode.y) 'n'
                     else if (it.x < newNode.x) 'w'
                     else 'e'
                 val dCount = if (d == dir.first) dir.second + 1 else 1
-                Thing(newPath,weight,it, d to dCount)
+                Thing(weight + map[it]!!,it, d to dCount)
             }
+            .filter { when(it.dir.first) {
+                'n' -> dir.first != 's'
+                's' -> dir.first != 'n'
+                'e' -> dir.first != 'w'
+                else -> dir.first != 'e'
+            } }
             .filter { dirFilter(it, dir)}
-            .forEach{queue.add(it)}
+            .forEach{
+                queue.add(it)
+            }
     }
 
-    return cheapestEnd
+    return null
 }
 
 private fun getNeighbours(point: IntPoint): List<IntPoint> {
@@ -121,6 +113,6 @@ private fun getNeighbours(point: IntPoint): List<IntPoint> {
     return neighbours
 }
 
-data class Thing(val path: Set<IntPoint>, val weight: Int, val point: IntPoint, val dir: Pair<Char,Int> )
+data class Thing(val weight: Int, val point: IntPoint, val dir: Pair<Char,Int> )
 data class IntPoint(val x: Int, val y: Int)
-data class WeightedPath(val path: Set<IntPoint>, val weight: Int)
+//data class WeightedPath(val path: Set<IntPoint>, val weight: Int)
