@@ -3,7 +3,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.time.measureTime
 
-private val Xmas = listOf("x","m","a","s");
+private val XMAS = listOf("x","m","a","s")
 
 
 fun main() {
@@ -33,8 +33,8 @@ private fun part1(lines: List<String>) {
     }
 
     val sum = lines.takeLastWhile { it != "" }
-        .map {
-            it.replace("{","").replace("}","")
+        .map {line ->
+            line.replace("{","").replace("}","")
                 .split(",")
                 .associate {
                     val x = it.split("=")
@@ -92,7 +92,7 @@ fun countAcceptedCombinations(instruction: Instruction, functions: Map<String,If
     return if (dataRanges.any { it.value.last < it.value.first })
             0L
         else if (instruction.accepted) {
-            Xmas.fold(1L) { acc, it ->
+            XMAS.fold(1L) { acc, it ->
                 val v = dataRanges[it]
                 if (v != null) {
                     acc * (v.last - v.first + 1)
@@ -183,15 +183,15 @@ private fun parseCondition(cond: String): Condition {
 
 private fun parseInstruction(inst: String): Instruction {
     return if (inst == "A")
-            Instruction(true,false,null,null)
+            Instruction(accepted = true, rejected = false, funCall = null, condition = null)
         else if (inst == "R")
-            Instruction(false, true, null,null)
+            Instruction(accepted = false, rejected = true, funCall = null, condition = null)
         else if (inst.contains(":"))
-            Instruction(false,false,null,parseIfFunction(inst))
+            Instruction(accepted = false, rejected = false, funCall = null, condition = parseIfFunction(inst))
         else
-            Instruction(false,false, inst,null)
+            Instruction(accepted = false, rejected = false, funCall = inst, condition = null)
 }
 
 data class Instruction(val accepted: Boolean, val rejected: Boolean, val funCall: String?, val condition: IfFunction?)
 data class IfFunction(val condition: Condition, val ifTrue: Instruction, val ifFalse: Instruction)
-data class Condition(val operator: Char, val left: String, val right: String);
+data class Condition(val operator: Char, val left: String, val right: String)
